@@ -69,8 +69,8 @@ class CompetitiveChart extends StatelessWidget {
                   ),
                   borderData: FlBorderData(
                     show: true,
-                    border:
-                        Border.all(color: Colors.deepPurpleAccent, width: 1),
+                    border: Border.all(
+                        color: Theme.of(context).colorScheme.primary, width: 1),
                   ),
                   minX: 0,
                   maxX: playerScores.length.toDouble() - 1,
@@ -82,7 +82,7 @@ class CompetitiveChart extends StatelessWidget {
                         return FlSpot(entry.key.toDouble(), entry.value);
                       }).toList(),
                       isCurved: true,
-                      color: Colors.deepPurpleAccent,
+                      color: Theme.of(context).colorScheme.primary,
                       dotData: FlDotData(show: true),
                       belowBarData: BarAreaData(show: false),
                     ),

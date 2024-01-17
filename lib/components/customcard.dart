@@ -1,3 +1,4 @@
+import 'package:AceDeck/components/alertdialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
@@ -6,12 +7,14 @@ class CustomCard extends StatelessWidget {
   final String gameName;
   final void Function(BuildContext context) onDelete;
   final void Function(BuildContext context) onEdit;
+  final List<Color> Colorslist;
 
   CustomCard({
     required this.onTap,
     required this.gameName,
     required this.onDelete,
     required this.onEdit,
+    required this.Colorslist,
   });
 
   @override
@@ -22,7 +25,19 @@ class CustomCard extends StatelessWidget {
         children: [
           SlidableAction(
             onPressed: (context) {
-              onDelete(context);
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return customalertdialog(
+                    title: "Delete Game",
+                    content: "Are you sure you want to delete this game?",
+                    onPressed: () {
+                      onDelete(context);
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              );
             },
             backgroundColor: Colors.red.shade400,
             foregroundColor: Colors.white,
@@ -52,10 +67,7 @@ class CustomCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             gradient: LinearGradient(
-              colors: [
-                Color.fromARGB(255, 106, 28, 120),
-                Color.fromARGB(255, 223, 45, 255),
-              ],
+              colors: Colorslist,
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),

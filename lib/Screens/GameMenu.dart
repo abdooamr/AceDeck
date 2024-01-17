@@ -1,5 +1,8 @@
+import 'package:AceDeck/Provider/AppThemeProvider.dart';
 import 'package:AceDeck/Screens/scoreboard.dart';
+import 'package:AceDeck/components/alertdialog.dart';
 import 'package:AceDeck/components/customcard.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -47,60 +50,110 @@ class _GameScreenState extends State<GameScreen> {
     ;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Game Menu'),
-      ),
-      body: ListView.builder(
-        itemCount: games.length,
-        itemBuilder: (context, index) {
-          return CustomCard(
-            onEdit: (context) {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  String newGameName = games[index].gameName;
-                  return AlertDialog(
-                    title: Text('Edit Game Name'),
-                    content: TextField(
-                      onChanged: (value) {
-                        newGameName = value;
+        title: Text('Adventure Hub'),
+        actions: [
+          PopupMenuButton(
+            itemBuilder: (context) {
+              return [
+                PopupMenuItem(
+                  child: Text('Change Theme'),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return ThemeDialog();
                       },
-                      decoration: InputDecoration(labelText: 'Game Name'),
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            games[index].gameName = newGameName;
-                          });
-                          saveGamesToSharedPreferences(
-                              games); // Save the updated list of games
+                    );
+                  },
+                ),
+                PopupMenuItem(
+                  child: Text('Reset All Games'),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return customalertdialog(
+                          title: "Reset All Games",
+                          content: "Are you sure you want to reset all games?",
+                          onPressed: () {
+                            setState(() {
+                              games.clear();
+                            });
+                            saveGamesToSharedPreferences(
+                                games); // Save the updated list of games
 
-                          Navigator.pop(context);
-                        },
-                        child: Text('Save'),
-                      ),
-                    ],
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
+              ];
+            },
+          )
+        ],
+      ),
+      body: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) {
+          return ListView.builder(
+            itemCount: games.length,
+            itemBuilder: (context, index) {
+              return CustomCard(
+                Colorslist: [
+                  themeProvider.primaryColor,
+                  themeProvider.primaryColor.withOpacity(0.5)
+                ],
+                onEdit: (context) {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      String newGameName = games[index].gameName;
+                      return AlertDialog(
+                        title: Text('Edit Game Name'),
+                        content: TextField(
+                          onChanged: (value) {
+                            newGameName = value;
+                          },
+                          decoration: InputDecoration(labelText: 'Game Name'),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                games[index].gameName = newGameName;
+                              });
+                              saveGamesToSharedPreferences(
+                                  games); // Save the updated list of games
+
+                              Navigator.pop(context);
+                            },
+                            child: Text('Save'),
+                          ),
+                        ],
+                      );
+                    },
                   );
                 },
+                onDelete: (context) {
+                  setState(() {
+                    games.removeAt(index);
+                  });
+                  saveGamesToSharedPreferences(
+                      games); // Save the updated list of games
+                },
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => Scoreboard(
+                        game: games[index],
+                      ),
+                    ),
+                  );
+                },
+                gameName: games[index].gameName,
               );
             },
-            onDelete: (context) {
-              setState(() {
-                games.removeAt(index);
-              });
-              saveGamesToSharedPreferences(
-                  games); // Save the updated list of games
-            },
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => Scoreboard(
-                    game: games[index],
-                  ),
-                ),
-              );
-            },
-            gameName: games[index].gameName,
           );
         },
       ),

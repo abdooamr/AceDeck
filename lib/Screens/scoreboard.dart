@@ -1,6 +1,8 @@
 import 'package:AceDeck/Model/game_model.dart';
 import 'package:AceDeck/Screens/chart_page.dart';
 import 'package:AceDeck/Screens/drawer.dart';
+import 'package:AceDeck/components/alertdialog.dart';
+import 'package:ficonsax/ficonsax.dart';
 import 'package:flutter/material.dart';
 import 'package:AceDeck/Model/player_model.dart';
 import 'package:AceDeck/Sharedpref/shared_pref.dart';
@@ -44,9 +46,38 @@ class _ScoreboardState extends State<Scoreboard> {
   @override
   Widget build(BuildContext context) {
     game.players.sort((a, b) => a.totalScore.compareTo(b.totalScore));
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Scoreboard for ${game.gameName}'),
+        title: Text("Champion's Corner"),
+        actions: [
+          IconButton(
+            icon: Icon(IconsaxBold.trash),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return customalertdialog(
+                    title: 'Reset All scores',
+                    content:
+                        'Are you sure you want to reset all players score?',
+                    onPressed: () {
+                      for (int i = 0; i < game.players.length; i++) {
+                        setState(() {
+                          game.players[i].initialRank = i + 1;
+                          game.players[i].scores.clear();
+                          game.players[i].scores.add(0);
+                        });
+                        savePlayerScoreToSharedPreferences();
+                      }
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              );
+            },
+          )
+        ],
       ),
       drawer: AppDrawer(onNewGame: () {
         setState(() {
@@ -64,6 +95,9 @@ class _ScoreboardState extends State<Scoreboard> {
           : ListView.builder(
               itemCount: game.players.length,
               itemBuilder: (context, index) {
+                int rankDifference =
+                    game.players[index].initialRank - (index + 1);
+
                 return Slidable(
                   direction: Axis.horizontal,
                   endActionPane: ActionPane(
@@ -74,10 +108,23 @@ class _ScoreboardState extends State<Scoreboard> {
                         backgroundColor: Colors.red,
                         label: "Delete",
                         onPressed: (context) {
-                          setState(() {
-                            game.players.removeAt(index);
-                          });
-                          savePlayerScoreToSharedPreferences();
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return customalertdialog(
+                                title: "Delete Player",
+                                content:
+                                    "Are you sure you want to delete this player?",
+                                onPressed: () {
+                                  setState(() {
+                                    game.players.removeAt(index);
+                                  });
+                                  savePlayerScoreToSharedPreferences();
+                                  Navigator.pop(context);
+                                },
+                              );
+                            },
+                          );
                         },
                       ),
                       SlidableAction(
@@ -157,9 +204,25 @@ class _ScoreboardState extends State<Scoreboard> {
                         },
                       );
                     },
-                    leading: Text(
-                      '${index + 1}',
-                      style: TextStyle(fontSize: 20),
+                    leading: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment
+                          .start, // Align to the start (left side)
+                      children: [
+                        Text(
+                          '${index + 1}',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        if (rankDifference != 0)
+                          Text(
+                            '${rankDifference > 0 ? '↑' : '↓'}  ${rankDifference.abs()}',
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: rankDifference > 0
+                                    ? Colors.green
+                                    : Colors.red),
+                          )
+                      ],
                     ),
                     title: Text(
                       game.players[index].playerName,
@@ -213,7 +276,9 @@ class _ScoreboardState extends State<Scoreboard> {
 
   void addPlayerToScoreboard(String playerName) {
     setState(() {
-      game.players.add(Player_Model(playerName: playerName, scores: [0]));
+      int initialRank = game.players.length + 1;
+      game.players.add(Player_Model(
+          playerName: playerName, scores: [0], initialRank: initialRank));
     });
     savePlayerScoreToSharedPreferences();
   }
