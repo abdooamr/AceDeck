@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:page_view_indicators/circle_page_indicator.dart';
+import 'package:AceDeck/components/glass_container.dart';
 import 'GameMenu.dart'; // Assuming GameScreen is in GameMenu.dart
 
 class SplashPage extends StatefulWidget {
@@ -48,14 +49,16 @@ class _SplashPageState extends State<SplashPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              const Color.fromARGB(255, 156, 39, 176),
-              Color.fromARGB(255, 33, 20, 100),
+              Color(0xFF0D0D1A),
+              Color(0xFF2D1B5E),
+              Color(0xFF0A0A18),
             ],
+            stops: [0.0, 0.5, 1.0],
           ),
         ),
         child: Stack(
@@ -71,67 +74,70 @@ class _SplashPageState extends State<SplashPage> {
               itemCount: animationList.length,
               itemBuilder: (context, index) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Lottie.asset(animationList[index],
-                          key: Key(index.toString()), height: 300),
-                      SizedBox(height: 30.0),
+                          key: Key(index.toString()), height: 280),
+                      const SizedBox(height: 24.0),
                       CirclePageIndicator(
-                        dotColor: Colors.grey,
+                        dotColor: Colors.white30,
                         selectedDotColor: Colors.white,
                         itemCount: animationList.length,
                         currentPageNotifier: _currentPageNotifier,
                       ),
-                      SizedBox(height: 20.0),
-                      Text(
-                        pageTexts[index],
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 28.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      const SizedBox(height: 20.0),
+                      GlassContainer(
+                        borderRadius: 20,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 20),
+                        child: Column(
+                          children: [
+                            Text(
+                              pageTexts[index],
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 26.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontFamily: 'BlackOpsOne',
+                              ),
+                            ),
+                            const SizedBox(height: 10.0),
+                            Text(
+                              subpageTexts[index],
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 15.0,
+                                color: Colors.white70,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      SizedBox(height: 10.0),
-                      Text(
-                        subpageTexts[index],
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 18.0,
-                          color: Colors.white70,
-                        ),
-                      ),
-                      SizedBox(height: 45.0),
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Colors.blue,
-                              Colors.purple,
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
+                      const SizedBox(height: 32.0),
+                      GlassContainer(
+                        borderRadius: 30,
+                        padding: EdgeInsets.zero,
+                        tintColor: const Color(0x33FFFFFF),
                         child: MaterialButton(
                           onPressed: _nextPage,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
+                            borderRadius: BorderRadius.circular(30.0),
                           ),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 40.0, vertical: 15.0),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 48.0, vertical: 16.0),
                           child: Text(
                             _currentPage < animationList.length - 1
                                 ? 'Next'
                                 : "Let's Get Started",
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),

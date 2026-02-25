@@ -28,14 +28,83 @@ class MainApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: themeProvider.isDarkMode
               ? ThemeData(
-                  // appBarTheme: AppBarTheme(
-                  //   backgroundColor: Color.fromARGB(150, 25, 26, 62),
-                  // ),
-                  // scaffoldBackgroundColor: Color.fromARGB(150, 25, 26, 62),
                   useMaterial3: true,
                   colorScheme: ColorScheme.dark(
                     primary: themeProvider.primaryColor,
                     brightness: Brightness.dark,
+                    surface: const Color(0xFF0D0D1A),
+                  ),
+                  scaffoldBackgroundColor: const Color(0xFF0D0D1A),
+                  appBarTheme: AppBarTheme(
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    foregroundColor: Colors.white,
+                    titleTextStyle: const TextStyle(
+                      fontFamily: 'BlackOpsOne',
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
+                  ),
+                  dialogTheme: DialogThemeData(
+                    backgroundColor: const Color(0xFF1A1A2E),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      side: BorderSide(
+                        color: Colors.white.withOpacity(0.15),
+                        width: 1.2,
+                      ),
+                    ),
+                    titleTextStyle: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    contentTextStyle: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
+                  ),
+                  inputDecorationTheme: InputDecorationTheme(
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.08),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Colors.white.withOpacity(0.2),
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Colors.white.withOpacity(0.2),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: themeProvider.primaryColor,
+                        width: 1.5,
+                      ),
+                    ),
+                    labelStyle: const TextStyle(color: Colors.white70),
+                    hintStyle: const TextStyle(color: Colors.white38),
+                  ),
+                  textButtonTheme: TextButtonThemeData(
+                    style: TextButton.styleFrom(
+                      foregroundColor: themeProvider.primaryColor,
+                      textStyle: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                  floatingActionButtonTheme: FloatingActionButtonThemeData(
+                    backgroundColor: themeProvider.primaryColor,
+                    foregroundColor: Colors.white,
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
                 )
               : ThemeData(
@@ -43,6 +112,33 @@ class MainApp extends StatelessWidget {
                   colorScheme: ColorScheme.light(
                     primary: themeProvider.primaryColor,
                     brightness: Brightness.light,
+                  ),
+                  appBarTheme: AppBarTheme(
+                    backgroundColor: themeProvider.primaryColor,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                  ),
+                  inputDecorationTheme: InputDecorationTheme(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: themeProvider.primaryColor,
+                        width: 1.5,
+                      ),
+                    ),
+                  ),
+                  floatingActionButtonTheme: FloatingActionButtonThemeData(
+                    backgroundColor: themeProvider.primaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
                 ),
           home: FutureBuilder<bool>(

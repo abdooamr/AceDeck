@@ -12,11 +12,13 @@ class textcustom extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Text(
       data,
       style: TextStyle(
         fontSize: size,
         fontWeight: FontWeight.bold,
+        color: isDark ? Colors.white : Theme.of(context).colorScheme.onSurface,
       ),
     );
   }
