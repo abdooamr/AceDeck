@@ -10,15 +10,28 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
-      child: MainApp(),
+      child: const MainApp(),
     ),
   );
 }
 
-class MainApp extends StatelessWidget {
-  MainApp({super.key});
+class MainApp extends StatefulWidget {
+  const MainApp({super.key});
+
+  @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  late final Future<bool> _hasUsedBeforeFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _hasUsedBeforeFuture = _hasAppBeenUsedBefore();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +63,7 @@ class MainApp extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                       side: BorderSide(
-                        color: Colors.white.withOpacity(0.15),
+                        color: Colors.white24,
                         width: 1.2,
                       ),
                     ),
@@ -66,18 +79,14 @@ class MainApp extends StatelessWidget {
                   ),
                   inputDecorationTheme: InputDecorationTheme(
                     filled: true,
-                    fillColor: Colors.white.withOpacity(0.08),
+                    fillColor: Colors.white10,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Colors.white.withOpacity(0.2),
-                      ),
+                      borderSide: BorderSide(color: Colors.white24),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Colors.white.withOpacity(0.2),
-                      ),
+                      borderSide: BorderSide(color: Colors.white24),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -142,16 +151,29 @@ class MainApp extends StatelessWidget {
                   ),
                 ),
           home: FutureBuilder<bool>(
-            future: _hasAppBeenUsedBefore(),
+            future: _hasUsedBeforeFuture,
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                return Scaffold(
-                  body: GameScreen(),
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
                 );
-              } else {
-                // You can show a loading indicator or a splash screen here while checking.
-                return CircularProgressIndicator();
               }
+
+              if (snapshot.hasError) {
+                return Scaffold(
+                  body: Center(
+                    child: Text(
+                      'Startup error: ${snapshot.error}',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                );
+              }
+
+              // You can use snapshot.data to route onboarding vs main if you want.
+              return Scaffold(
+                body: GameScreen(),
+              );
             },
           ),
         );
@@ -161,14 +183,12 @@ class MainApp extends StatelessWidget {
 
   Future<bool> _hasAppBeenUsedBefore() async {
     final prefs = await SharedPreferences.getInstance();
-    bool? hasBeenUsedBefore = prefs.getBool('firstLaunch');
+    final hasBeenUsedBefore = prefs.getBool('firstLaunch');
 
     if (hasBeenUsedBefore == null) {
-      // 'firstLaunch' key doesn't exist or is null, treat it as first launch
       await prefs.setBool('firstLaunch', true);
-      return false; // Return false since the app is considered launched for the first time
-    } else {
-      return hasBeenUsedBefore; // Return the retrieved value if it exists
+      return false;
     }
+    return hasBeenUsedBefore;
   }
 }
