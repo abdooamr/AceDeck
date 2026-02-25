@@ -1,21 +1,24 @@
 import 'package:AceDeck/Provider/AppThemeProvider.dart';
-import 'package:AceDeck/Screens/GameMenu.dart';
-import 'package:AceDeck/Screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:AceDeck/Screens/GameMenu.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
+      ],
       child: MainApp(),
     ),
   );
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,22 +26,31 @@ class MainApp extends StatelessWidget {
       builder: (context, themeProvider, _) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            useMaterial3: true,
-            colorScheme: ColorScheme.dark(
-              primary: themeProvider.primaryColor,
-              brightness: Brightness.dark,
-            ),
-          ),
+          theme: themeProvider.isDarkMode
+              ? ThemeData(
+                  // appBarTheme: AppBarTheme(
+                  //   backgroundColor: Color.fromARGB(150, 25, 26, 62),
+                  // ),
+                  // scaffoldBackgroundColor: Color.fromARGB(150, 25, 26, 62),
+                  useMaterial3: true,
+                  colorScheme: ColorScheme.dark(
+                    primary: themeProvider.primaryColor,
+                    brightness: Brightness.dark,
+                  ),
+                )
+              : ThemeData(
+                  useMaterial3: true,
+                  colorScheme: ColorScheme.light(
+                    primary: themeProvider.primaryColor,
+                    brightness: Brightness.light,
+                  ),
+                ),
           home: FutureBuilder<bool>(
             future: _hasAppBeenUsedBefore(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
-                final hasBeenUsedBefore = snapshot.data ?? false;
-                print(hasBeenUsedBefore);
-
                 return Scaffold(
-                  body: hasBeenUsedBefore ? GameScreen() : SplashPage(),
+                  body: GameScreen(),
                 );
               } else {
                 // You can show a loading indicator or a splash screen here while checking.

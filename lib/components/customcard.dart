@@ -25,6 +25,17 @@ class CustomCard extends StatelessWidget {
         children: [
           SlidableAction(
             onPressed: (context) {
+              onEdit(context);
+            },
+            backgroundColor: Colors.purple.shade400,
+            foregroundColor: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            autoClose: true,
+            icon: Icons.edit,
+            label: 'Edit',
+          ),
+          SlidableAction(
+            onPressed: (context) {
               showDialog(
                 context: context,
                 builder: (context) {
@@ -41,21 +52,13 @@ class CustomCard extends StatelessWidget {
             },
             backgroundColor: Colors.red.shade400,
             foregroundColor: Colors.white,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(20),
             autoClose: true,
             icon: Icons.delete,
             label: 'Delete',
           ),
-          SlidableAction(
-            onPressed: (context) {
-              onEdit(context);
-            },
-            backgroundColor: Colors.purple.shade400,
-            foregroundColor: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            autoClose: true,
-            icon: Icons.edit,
-            label: 'Edit',
+          SizedBox(
+            width: 2,
           ),
         ],
       ),

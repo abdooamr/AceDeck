@@ -25,6 +25,7 @@ class CompetitiveChart extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         title: Text('Player Score Chart'),
       ),
       body: Padding(

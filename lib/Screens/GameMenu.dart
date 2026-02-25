@@ -2,6 +2,7 @@ import 'package:AceDeck/Provider/AppThemeProvider.dart';
 import 'package:AceDeck/Screens/scoreboard.dart';
 import 'package:AceDeck/components/alertdialog.dart';
 import 'package:AceDeck/components/customcard.dart';
+import 'package:ficonsax/ficonsax.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
@@ -47,16 +48,37 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ;
+    ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
         title: Text('Adventure Hub'),
         actions: [
           PopupMenuButton(
             itemBuilder: (context) {
               return [
                 PopupMenuItem(
-                  child: Text('Change Theme'),
+                  child: Row(
+                    children: [
+                      themeProvider.isDarkMode
+                          ? Icon(IconsaxBold.sun_1)
+                          : Icon(IconsaxBold.moon),
+                      themeProvider.isDarkMode
+                          ? Text('Light Mode')
+                          : Text('Dark Mode'),
+                    ],
+                  ),
+                  onTap: () {
+                    themeProvider.toggleTheme();
+                  },
+                ),
+                PopupMenuItem(
+                  child: Row(
+                    children: [
+                      Icon(IconsaxBold.color_swatch),
+                      Text('Change Theme'),
+                    ],
+                  ),
                   onTap: () {
                     showDialog(
                       context: context,
@@ -67,7 +89,12 @@ class _GameScreenState extends State<GameScreen> {
                   },
                 ),
                 PopupMenuItem(
-                  child: Text('Reset All Games'),
+                  child: Row(
+                    children: [
+                      Icon(IconsaxBold.trash),
+                      Text('Reset All Games'),
+                    ],
+                  ),
                   onTap: () {
                     showDialog(
                       context: context,

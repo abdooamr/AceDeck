@@ -5,9 +5,30 @@ import 'package:provider/provider.dart';
 class ThemeProvider with ChangeNotifier {
   late Color _primaryColor = Colors.deepPurpleAccent;
   Color get primaryColor => _primaryColor;
+  bool _isDarkMode = true;
+  bool _isGradient = false;
+
+  bool get isDarkMode => _isDarkMode;
+  bool get isGradient => _isGradient;
+
+  Future<void> toggleTheme() async {
+    _isDarkMode = !_isDarkMode;
+    notifyListeners();
+
+    // Save the theme preference to SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isDarkMode', _isDarkMode);
+  }
+
+  Future<void> _loadTheme() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _isDarkMode = prefs.getBool('isDarkMode') ?? true;
+    notifyListeners();
+  }
 
   ThemeProvider() {
     _loadPrimaryColor();
+    _loadTheme();
   }
 
   void _loadPrimaryColor() async {
@@ -61,11 +82,23 @@ class ThemeDialog extends StatelessWidget {
               onTap: () {
                 Provider.of<ThemeProvider>(context, listen: false)
                     .changePrimaryColor(color);
-                Navigator.pop(context); // Close the dialog
+                // Navigator.pop(context); // Close the dialog
               },
               child: Container(
                 height: 50,
                 width: 50,
+                child: Text(
+                  getColorName(color),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontFamily: "BlackOpsOne",
+                    fontWeight: FontWeight.bold,
+                    color: isSelected
+                        ? Color.fromARGB(255, 3, 236, 170)
+                        : Colors.white,
+                  ),
+                ),
                 decoration: BoxDecoration(
                   color: color,
                   border: Border.all(
@@ -82,4 +115,25 @@ class ThemeDialog extends StatelessWidget {
       ),
     );
   }
+}
+
+String getColorName(Color color) {
+  // You can implement a logic to get the color name based on the color value.
+  // For simplicity, using a basic mapping for demonstration purposes.
+  Map<Color, String> colorNames = {
+    Colors.red: 'Red',
+    Colors.blue: 'Blue',
+    Colors.green: 'Green',
+    Colors.orange: 'Orange',
+    Colors.purple: 'Purple',
+    Colors.yellow: 'Yellow',
+    Colors.teal: 'Teal',
+    Colors.pink: 'Pink',
+    Colors.indigo: 'Indigo',
+    Colors.deepOrange: 'Deep Orange',
+    Colors.blueGrey: 'Blue Grey',
+    Colors.cyan: 'Cyan',
+  };
+
+  return colorNames[color] ?? 'Unknown';
 }

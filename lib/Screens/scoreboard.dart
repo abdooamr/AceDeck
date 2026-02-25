@@ -1,6 +1,5 @@
 import 'package:AceDeck/Model/game_model.dart';
 import 'package:AceDeck/Screens/chart_page.dart';
-import 'package:AceDeck/Screens/drawer.dart';
 import 'package:AceDeck/components/alertdialog.dart';
 import 'package:ficonsax/ficonsax.dart';
 import 'package:flutter/material.dart';
@@ -27,22 +26,6 @@ class _ScoreboardState extends State<Scoreboard> {
     loadPlayerScoreFromSharedPreferences();
   }
 
-  Future<void> loadPlayerScoreFromSharedPreferences() async {
-    // Use the same unique key to load player data
-    final key = 'game_${game.gameName}';
-    final loadedScore = await PlayerPreferences.loadPlayerScore(key);
-
-    setState(() {
-      game.players = loadedScore;
-    });
-  }
-
-  Future<void> savePlayerScoreToSharedPreferences() async {
-    // Use a unique key for each game
-    final key = 'game_${game.gameName}';
-    await PlayerPreferences.savePlayerScore(key, game.players);
-  }
-
   @override
   Widget build(BuildContext context) {
     game.players.sort((a, b) => a.totalScore.compareTo(b.totalScore));
@@ -51,40 +34,74 @@ class _ScoreboardState extends State<Scoreboard> {
       appBar: AppBar(
         title: Text("Champion's Corner"),
         actions: [
-          IconButton(
-            icon: Icon(IconsaxBold.trash),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return customalertdialog(
-                    title: 'Reset All scores',
-                    content:
-                        'Are you sure you want to reset all players score?',
-                    onPressed: () {
-                      for (int i = 0; i < game.players.length; i++) {
-                        setState(() {
-                          game.players[i].initialRank = i + 1;
-                          game.players[i].scores.clear();
-                          game.players[i].scores.add(0);
-                        });
-                        savePlayerScoreToSharedPreferences();
-                      }
-                      Navigator.pop(context);
-                    },
-                  );
-                },
-              );
+          PopupMenuButton(
+            itemBuilder: (context) {
+              return [
+                PopupMenuItem(
+                  child: Row(
+                    children: [
+                      Icon(IconsaxBold.note_remove),
+                      SizedBox(width: 10),
+                      Text('Reset All scores'),
+                    ],
+                  ),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return customalertdialog(
+                          title: 'Reset All scores',
+                          content:
+                              'Are you sure you want to reset all players score?',
+                          onPressed: () {
+                            for (int i = 0; i < game.players.length; i++) {
+                              setState(() {
+                                game.players[i].initialRank = i + 1;
+                                game.players[i].scores.clear();
+                                game.players[i].scores.add(0);
+                              });
+                              savePlayerScoreToSharedPreferences();
+                            }
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
+                PopupMenuItem(
+                  child: Row(
+                    children: [
+                      Icon(IconsaxBold.profile_remove),
+                      SizedBox(width: 10),
+                      Text('Delete All Players'),
+                    ],
+                  ),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return customalertdialog(
+                          title: 'Delete All Players',
+                          content:
+                              'Are you sure you want to delete all players?',
+                          onPressed: () {
+                            setState(() {
+                              game.players.clear();
+                            });
+                            savePlayerScoreToSharedPreferences();
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                    );
+                  },
+                )
+              ];
             },
           )
         ],
       ),
-      drawer: AppDrawer(onNewGame: () {
-        setState(() {
-          game.players.clear();
-        });
-        savePlayerScoreToSharedPreferences();
-      }),
       body: (game.players.isEmpty)
           ? Center(
               child: Text(
@@ -101,11 +118,49 @@ class _ScoreboardState extends State<Scoreboard> {
                 return Slidable(
                   direction: Axis.horizontal,
                   endActionPane: ActionPane(
+                    extentRatio: 0.75,
                     motion: const ScrollMotion(),
                     children: [
                       SlidableAction(
-                        icon: Icons.delete,
-                        backgroundColor: Colors.red,
+                        icon: IconsaxBold.edit,
+                        backgroundColor: Colors.deepPurpleAccent,
+                        label: "Edit",
+                        onPressed: (context) {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              int indx = game.players[index].scores.length;
+                              int lastscore =
+                                  game.players[index].scores[indx - 1];
+                              return AlertDialog(
+                                title: Text('Edit Score'),
+                                content: TextField(
+                                  keyboardType: TextInputType.number,
+                                  onChanged: (value) {
+                                    lastscore = int.parse(value);
+                                  },
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        game.players[index].scores[indx - 1] =
+                                            lastscore;
+                                      });
+                                      savePlayerScoreToSharedPreferences();
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text('Edit'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      ),
+                      SlidableAction(
+                        icon: IconsaxBold.profile_remove,
+                        backgroundColor: Color.fromARGB(255, 226, 48, 35),
                         label: "Delete",
                         onPressed: (context) {
                           showDialog(
@@ -140,9 +195,9 @@ class _ScoreboardState extends State<Scoreboard> {
                             ),
                           );
                         },
-                        icon: Icons.bar_chart,
+                        icon: IconsaxBold.chart_square,
                         label: "Chart",
-                        backgroundColor: Colors.greenAccent,
+                        backgroundColor: Color.fromARGB(255, 78, 228, 155),
                       )
                     ],
                   ),
@@ -209,15 +264,19 @@ class _ScoreboardState extends State<Scoreboard> {
                       crossAxisAlignment: CrossAxisAlignment
                           .start, // Align to the start (left side)
                       children: [
-                        Text(
-                          '${index + 1}',
-                          style: TextStyle(fontSize: 20),
+                        CircleAvatar(
+                          radius: 15,
+                          backgroundColor: getPlayerColor(index),
+                          child: Text(
+                            '${index + 1}',
+                            style: TextStyle(fontSize: 20),
+                          ),
                         ),
                         if (rankDifference != 0)
                           Text(
                             '${rankDifference > 0 ? '↑' : '↓'}  ${rankDifference.abs()}',
                             style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 15,
                                 color: rankDifference > 0
                                     ? Colors.green
                                     : Colors.red),
@@ -281,5 +340,44 @@ class _ScoreboardState extends State<Scoreboard> {
           playerName: playerName, scores: [0], initialRank: initialRank));
     });
     savePlayerScoreToSharedPreferences();
+  }
+
+  bool playerscoreaddedornot(int playerIndex) {
+    int maxScoreLength = 0;
+    for (int i = 0; i < game.players.length; i++) {
+      if (game.players[i].scores.length > maxScoreLength) {
+        maxScoreLength = game.players[i].scores.length;
+      }
+    }
+
+    if (game.players[playerIndex].scores.length < maxScoreLength) {
+      return true;
+    }
+    return false;
+  }
+
+  Color getPlayerColor(int playerIndex) {
+    if (playerscoreaddedornot(playerIndex)) {
+      return Colors.red;
+      // Handle the flag or perform additional actions
+    } else {
+      return Colors.green;
+    }
+  }
+
+  Future<void> loadPlayerScoreFromSharedPreferences() async {
+    // Use the same unique key to load player data
+    final key = 'game_${game.gameName}';
+    final loadedScore = await PlayerPreferences.loadPlayerScore(key);
+
+    setState(() {
+      game.players = loadedScore;
+    });
+  }
+
+  Future<void> savePlayerScoreToSharedPreferences() async {
+    // Use a unique key for each game
+    final key = 'game_${game.gameName}';
+    await PlayerPreferences.savePlayerScore(key, game.players);
   }
 }
