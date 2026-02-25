@@ -91,7 +91,7 @@ class _GameScreenState extends State<GameScreen> {
         title: const Text('Adventure Hub'),
         actions: [
           PopupMenuButton(
-            itemBuilder: (context) {
+            itemBuilder: (_) {
               return [
                 PopupMenuItem(
                   child: Row(
