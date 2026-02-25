@@ -48,13 +48,15 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
-  void _showGameDialog({String? initialName, required Function(String) onSave}) {
+  void _showGameDialog(
+      {String? initialName, required Function(String) onSave}) {
     String name = initialName ?? '';
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(initialName == null ? 'Create a New Game' : 'Edit Game Name'),
+          title: Text(
+              initialName == null ? 'Create a New Game' : 'Edit Game Name'),
           content: TextFormField(
             initialValue: initialName,
             autofocus: true,
@@ -173,7 +175,8 @@ class _GameScreenState extends State<GameScreen> {
                         Icon(
                           Icons.sports_esports_rounded,
                           size: 64,
-                          color: themeProvider.primaryColor.withOpacity(0.85),
+                          color: themeProvider.primaryColor
+                              .withValues(alpha: 0.85),
                         ),
                         const SizedBox(height: 16),
                         const Text(
@@ -206,7 +209,7 @@ class _GameScreenState extends State<GameScreen> {
                 return CustomCard(
                   Colorslist: [
                     themeProvider.primaryColor,
-                    themeProvider.primaryColor.withOpacity(0.5),
+                    themeProvider.primaryColor.withValues(alpha: 0.5),
                   ],
                   onEdit: (context) {
                     _showGameDialog(

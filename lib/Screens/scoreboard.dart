@@ -192,7 +192,8 @@ class _ScoreboardState extends State<Scoreboard> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(IconsaxBold.crown, size: 56, color: Colors.amber),
+                        const Icon(IconsaxBold.crown,
+                            size: 56, color: Colors.amber),
                         const SizedBox(height: 16),
                         const Text(
                           'Scoreboard Awaits Its Champions',
@@ -216,8 +217,8 @@ class _ScoreboardState extends State<Scoreboard> {
                       game.players[index].initialRank - (index + 1);
 
                   return Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 5),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                     child: Slidable(
                       direction: Axis.horizontal,
                       endActionPane: ActionPane(
@@ -279,11 +280,9 @@ class _ScoreboardState extends State<Scoreboard> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => CompetitiveChart(
-                                    playerNames:
-                                        game.players[index].playerName,
+                                    playerNames: game.players[index].playerName,
                                     playerScores: game.players[index].scores,
-                                    totalScore:
-                                        game.players[index].totalScore,
+                                    totalScore: game.players[index].totalScore,
                                   ),
                                 ),
                               );
@@ -299,7 +298,7 @@ class _ScoreboardState extends State<Scoreboard> {
                       child: GlassContainer(
                         borderRadius: 16,
                         padding: EdgeInsets.zero,
-                        tintColor: Colors.white.withOpacity(0.07),
+                        tintColor: Colors.white.withValues(alpha: 0.07),
                         child: ListTile(
                           contentPadding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 4),

@@ -67,8 +67,8 @@ class CustomCard extends StatelessWidget {
           borderRadius: 18,
           padding: EdgeInsets.zero,
           tintColor: isDark
-              ? Colors.white.withOpacity(0.07)
-              : Colorslist.first.withOpacity(0.15),
+              ? Colors.white.withValues(alpha: 0.07)
+              : Colorslist.first.withValues(alpha: 0.15),
           child: InkWell(
             onTap: onTap,
             borderRadius: BorderRadius.circular(18),
@@ -79,8 +79,8 @@ class CustomCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(18),
                 gradient: LinearGradient(
                   colors: [
-                    Colorslist.first.withOpacity(isDark ? 0.35 : 0.5),
-                    Colorslist.last.withOpacity(isDark ? 0.15 : 0.3),
+                    Colorslist.first.withValues(alpha: isDark ? 0.35 : 0.5),
+                    Colorslist.last.withValues(alpha: isDark ? 0.15 : 0.3),
                   ],
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
@@ -108,7 +108,7 @@ class CustomCard extends StatelessWidget {
                   ),
                   Icon(
                     Icons.chevron_right_rounded,
-                    color: Colors.white.withOpacity(0.6),
+                    color: Colors.white.withValues(alpha: 0.6),
                     size: 28,
                   ),
                 ],

@@ -16,12 +16,13 @@ class customalertdialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return AlertDialog(
-      backgroundColor:
-          isDark ? const Color(0xFF1A1A2E) : Theme.of(context).dialogTheme.backgroundColor,
+      backgroundColor: isDark
+          ? const Color(0xFF1A1A2E)
+          : Theme.of(context).dialogTheme.backgroundColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
-          color: Colors.white.withOpacity(isDark ? 0.15 : 0.0),
+          color: Colors.white.withValues(alpha: isDark ? 0.15 : 0.0),
           width: 1.2,
         ),
       ),

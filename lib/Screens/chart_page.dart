@@ -99,7 +99,7 @@ class CompetitiveChart extends StatelessWidget {
                               color: Theme.of(context)
                                   .colorScheme
                                   .primary
-                                  .withOpacity(0.5),
+                                  .withValues(alpha: 0.5),
                               width: 1),
                         ),
                         minX: 0,
@@ -110,9 +110,9 @@ class CompetitiveChart extends StatelessWidget {
                             : cumulativeScores.reduce((a, b) => a > b ? a : b),
                         lineBarsData: [
                           LineChartBarData(
-                            spots: cumulativeScores.asMap().entries.map((entry) {
-                              return FlSpot(
-                                  entry.key.toDouble(), entry.value);
+                            spots:
+                                cumulativeScores.asMap().entries.map((entry) {
+                              return FlSpot(entry.key.toDouble(), entry.value);
                             }).toList(),
                             isCurved: true,
                             color: Theme.of(context).colorScheme.primary,
@@ -132,7 +132,7 @@ class CompetitiveChart extends StatelessWidget {
                               color: Theme.of(context)
                                   .colorScheme
                                   .primary
-                                  .withOpacity(0.15),
+                                  .withValues(alpha: 0.15),
                             ),
                           ),
                         ],

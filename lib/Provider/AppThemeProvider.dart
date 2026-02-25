@@ -33,7 +33,8 @@ class ThemeProvider with ChangeNotifier {
 
   void _loadPrimaryColor() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    int colorValue = prefs.getInt('primaryColor') ?? Colors.deepPurple.value;
+    int colorValue =
+        prefs.getInt('primaryColor') ?? Colors.deepPurpleAccent.toARGB32();
     _primaryColor = Color(colorValue);
     notifyListeners();
   }
@@ -41,7 +42,7 @@ class ThemeProvider with ChangeNotifier {
   void changePrimaryColor(Color newColor) async {
     _primaryColor = newColor;
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('primaryColor', newColor.value);
+    await prefs.setInt('primaryColor', newColor.toARGB32());
     notifyListeners();
   }
 }
@@ -52,7 +53,7 @@ class ThemeDialog extends StatelessWidget {
     Colors.blue,
     Colors.green,
     Colors.orange,
-    Colors.purple,
+    Colors.deepPurpleAccent,
     Colors.yellow,
     Colors.teal,
     Colors.pink,
@@ -125,7 +126,7 @@ String getColorName(Color color) {
     Colors.blue: 'Blue',
     Colors.green: 'Green',
     Colors.orange: 'Orange',
-    Colors.purple: 'Purple',
+    Colors.deepPurpleAccent: 'Purple',
     Colors.yellow: 'Yellow',
     Colors.teal: 'Teal',
     Colors.pink: 'Pink',

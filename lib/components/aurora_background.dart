@@ -17,7 +17,7 @@ class AuroraBackground extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [
             const Color(0xFF0D0D1A),
-            primary.withOpacity(0.55),
+            primary.withValues(alpha: 0.55),
             const Color(0xFF0A0A18),
           ],
           stops: const [0.0, 0.55, 1.0],
