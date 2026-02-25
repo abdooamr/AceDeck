@@ -1,7 +1,9 @@
 import 'package:AceDeck/Provider/AppThemeProvider.dart';
 import 'package:AceDeck/Screens/scoreboard.dart';
 import 'package:AceDeck/components/alertdialog.dart';
+import 'package:AceDeck/components/aurora_background.dart';
 import 'package:AceDeck/components/customcard.dart';
+import 'package:AceDeck/components/glass_container.dart';
 import 'package:ficonsax/ficonsax.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,13 +48,47 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
+  void _showGameDialog({String? initialName, required Function(String) onSave}) {
+    String name = initialName ?? '';
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(initialName == null ? 'Create a New Game' : 'Edit Game Name'),
+          content: TextFormField(
+            initialValue: initialName,
+            autofocus: true,
+            onChanged: (value) => name = value,
+            decoration: const InputDecoration(labelText: 'Game Name'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                onSave(name);
+                Navigator.pop(context);
+              },
+              child: Text(initialName == null ? 'Create' : 'Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         elevation: 0,
-        title: Text('Adventure Hub'),
+        backgroundColor: Colors.transparent,
+        title: const Text('Adventure Hub'),
         actions: [
           PopupMenuButton(
             itemBuilder: (context) {
@@ -60,12 +96,13 @@ class _GameScreenState extends State<GameScreen> {
                 PopupMenuItem(
                   child: Row(
                     children: [
-                      themeProvider.isDarkMode
-                          ? Icon(IconsaxBold.sun_1)
-                          : Icon(IconsaxBold.moon),
-                      themeProvider.isDarkMode
-                          ? Text('Light Mode')
-                          : Text('Dark Mode'),
+                      isDark
+                          ? const Icon(IconsaxBold.sun_1)
+                          : const Icon(IconsaxBold.moon),
+                      const SizedBox(width: 8),
+                      isDark
+                          ? const Text('Light Mode')
+                          : const Text('Dark Mode'),
                     ],
                   ),
                   onTap: () {
@@ -73,9 +110,10 @@ class _GameScreenState extends State<GameScreen> {
                   },
                 ),
                 PopupMenuItem(
-                  child: Row(
+                  child: const Row(
                     children: [
                       Icon(IconsaxBold.color_swatch),
+                      SizedBox(width: 8),
                       Text('Change Theme'),
                     ],
                   ),
@@ -89,9 +127,10 @@ class _GameScreenState extends State<GameScreen> {
                   },
                 ),
                 PopupMenuItem(
-                  child: Row(
+                  child: const Row(
                     children: [
                       Icon(IconsaxBold.trash),
+                      SizedBox(width: 8),
                       Text('Reset All Games'),
                     ],
                   ),
@@ -106,9 +145,7 @@ class _GameScreenState extends State<GameScreen> {
                             setState(() {
                               games.clear();
                             });
-                            saveGamesToSharedPreferences(
-                                games); // Save the updated list of games
-
+                            saveGamesToSharedPreferences(games);
                             Navigator.pop(context);
                           },
                         );
@@ -121,108 +158,105 @@ class _GameScreenState extends State<GameScreen> {
           )
         ],
       ),
-      body: Consumer<ThemeProvider>(
-        builder: (context, themeProvider, _) {
-          return ListView.builder(
-            itemCount: games.length,
-            itemBuilder: (context, index) {
-              return CustomCard(
-                Colorslist: [
-                  themeProvider.primaryColor,
-                  themeProvider.primaryColor.withOpacity(0.5)
-                ],
-                onEdit: (context) {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      String newGameName = games[index].gameName;
-                      return AlertDialog(
-                        title: Text('Edit Game Name'),
-                        content: TextField(
-                          onChanged: (value) {
-                            newGameName = value;
-                          },
-                          decoration: InputDecoration(labelText: 'Game Name'),
+      body: AuroraBackground(
+        child: Consumer<ThemeProvider>(
+          builder: (context, themeProvider, _) {
+            if (games.isEmpty) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: GlassContainer(
+                    borderRadius: 24,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.sports_esports_rounded,
+                          size: 64,
+                          color: themeProvider.primaryColor.withOpacity(0.85),
                         ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              setState(() {
-                                games[index].gameName = newGameName;
-                              });
-                              saveGamesToSharedPreferences(
-                                  games); // Save the updated list of games
-
-                              Navigator.pop(context);
-                            },
-                            child: Text('Save'),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'No Games Yet',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontFamily: 'BlackOpsOne',
+                            color: Colors.white,
                           ),
-                        ],
-                      );
-                    },
-                  );
-                },
-                onDelete: (context) {
-                  setState(() {
-                    games.removeAt(index);
-                  });
-                  saveGamesToSharedPreferences(
-                      games); // Save the updated list of games
-                },
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => Scoreboard(
-                        game: games[index],
-                      ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Tap + to create your first game',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.white70,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
-                  );
-                },
-                gameName: games[index].gameName,
+                  ),
+                ),
               );
-            },
-          );
-        },
+            }
+            return ListView.builder(
+              padding: const EdgeInsets.only(top: 100, bottom: 80),
+              itemCount: games.length,
+              itemBuilder: (context, index) {
+                return CustomCard(
+                  Colorslist: [
+                    themeProvider.primaryColor,
+                    themeProvider.primaryColor.withOpacity(0.5),
+                  ],
+                  onEdit: (context) {
+                    _showGameDialog(
+                      initialName: games[index].gameName,
+                      onSave: (newName) {
+                        setState(() {
+                          games[index].gameName = newName;
+                        });
+                        saveGamesToSharedPreferences(games);
+                      },
+                    );
+                  },
+                  onDelete: (context) {
+                    setState(() {
+                      games.removeAt(index);
+                    });
+                    saveGamesToSharedPreferences(games);
+                  },
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => Scoreboard(
+                          game: games[index],
+                        ),
+                      ),
+                    );
+                  },
+                  gameName: games[index].gameName,
+                );
+              },
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Show a dialog to create a new game
-          showDialog(
-            context: context,
-            builder: (context) {
-              String newGameName = ''; // Initialize with an empty game name
-              return AlertDialog(
-                title: Text('Create a New Game'),
-                content: TextField(
-                  onChanged: (value) {
-                    newGameName = value;
-                  },
-                  decoration: InputDecoration(labelText: 'Game Name'),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      // Create a new game with an empty list of players
-                      Game_Model newGame = Game_Model(
-                        gameName: newGameName,
-                        players: [],
-                      );
-                      setState(() {
-                        games.add(newGame);
-                      });
-                      saveGamesToSharedPreferences(
-                          games); // Save the updated list of games
-
-                      Navigator.pop(context);
-                    },
-                    child: Text('Create'),
-                  ),
-                ],
+          _showGameDialog(
+            onSave: (newGameName) {
+              Game_Model newGame = Game_Model(
+                gameName: newGameName,
+                players: [],
               );
+              setState(() {
+                games.add(newGame);
+              });
+              saveGamesToSharedPreferences(games);
             },
           );
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }

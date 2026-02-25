@@ -1,6 +1,8 @@
 import 'package:AceDeck/Model/game_model.dart';
 import 'package:AceDeck/Screens/chart_page.dart';
 import 'package:AceDeck/components/alertdialog.dart';
+import 'package:AceDeck/components/aurora_background.dart';
+import 'package:AceDeck/components/glass_container.dart';
 import 'package:ficonsax/ficonsax.dart';
 import 'package:flutter/material.dart';
 import 'package:AceDeck/Model/player_model.dart';
@@ -26,19 +28,97 @@ class _ScoreboardState extends State<Scoreboard> {
     loadPlayerScoreFromSharedPreferences();
   }
 
+  void _showScoreDialog({
+    required String title,
+    required String buttonLabel,
+    required Function(int) onSave,
+    int? initialValue,
+  }) {
+    int value = initialValue ?? 0;
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: TextFormField(
+            initialValue: initialValue?.toString(),
+            autofocus: true,
+            keyboardType: TextInputType.number,
+            onChanged: (v) {
+              value = int.tryParse(v) ?? value;
+            },
+            decoration: const InputDecoration(hintText: 'Enter score'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                onSave(value);
+                Navigator.pop(context);
+              },
+              child: Text(buttonLabel),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showPlayerNameDialog({
+    required String title,
+    required String buttonLabel,
+    required Function(String) onSave,
+    String? initialValue,
+  }) {
+    String value = initialValue ?? '';
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: TextFormField(
+            initialValue: initialValue,
+            autofocus: true,
+            keyboardType: TextInputType.name,
+            onChanged: (v) => value = v,
+            decoration: const InputDecoration(hintText: 'Enter name'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                onSave(value);
+                Navigator.pop(context);
+              },
+              child: Text(buttonLabel),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     game.players.sort((a, b) => a.totalScore.compareTo(b.totalScore));
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text("Champion's Corner"),
+        backgroundColor: Colors.transparent,
+        title: const Text("Champion's Corner"),
         actions: [
           PopupMenuButton(
             itemBuilder: (context) {
               return [
                 PopupMenuItem(
-                  child: Row(
+                  child: const Row(
                     children: [
                       Icon(IconsaxBold.note_remove),
                       SizedBox(width: 10),
@@ -70,7 +150,7 @@ class _ScoreboardState extends State<Scoreboard> {
                   },
                 ),
                 PopupMenuItem(
-                  child: Row(
+                  child: const Row(
                     children: [
                       Icon(IconsaxBold.profile_remove),
                       SizedBox(width: 10),
@@ -102,233 +182,213 @@ class _ScoreboardState extends State<Scoreboard> {
           )
         ],
       ),
-      body: (game.players.isEmpty)
-          ? Center(
-              child: Text(
-              'Scoreboard Awaits Its Champions',
-              style: TextStyle(
-                  fontSize: 20, fontFamily: "BlackOpsOne", color: Colors.white),
-            ))
-          : ListView.builder(
-              itemCount: game.players.length,
-              itemBuilder: (context, index) {
-                int rankDifference =
-                    game.players[index].initialRank - (index + 1);
+      body: AuroraBackground(
+        child: (game.players.isEmpty)
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: GlassContainer(
+                    borderRadius: 24,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(IconsaxBold.crown, size: 56, color: Colors.amber),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Scoreboard Awaits Its Champions',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontFamily: 'BlackOpsOne',
+                            color: Colors.white,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            : ListView.builder(
+                padding: const EdgeInsets.only(top: 100, bottom: 80),
+                itemCount: game.players.length,
+                itemBuilder: (context, index) {
+                  int rankDifference =
+                      game.players[index].initialRank - (index + 1);
 
-                return Slidable(
-                  direction: Axis.horizontal,
-                  endActionPane: ActionPane(
-                    extentRatio: 0.75,
-                    motion: const ScrollMotion(),
-                    children: [
-                      SlidableAction(
-                        icon: IconsaxBold.edit,
-                        backgroundColor: Colors.deepPurpleAccent,
-                        label: "Edit",
-                        onPressed: (context) {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 5),
+                    child: Slidable(
+                      direction: Axis.horizontal,
+                      endActionPane: ActionPane(
+                        extentRatio: 0.75,
+                        motion: const ScrollMotion(),
+                        children: [
+                          SlidableAction(
+                            icon: IconsaxBold.edit,
+                            backgroundColor: Colors.deepPurpleAccent,
+                            label: "Edit",
+                            borderRadius: BorderRadius.circular(14),
+                            onPressed: (context) {
                               int indx = game.players[index].scores.length;
-                              int lastscore =
+                              int lastScore =
                                   game.players[index].scores[indx - 1];
-                              return AlertDialog(
-                                title: Text('Edit Score'),
-                                content: TextField(
-                                  keyboardType: TextInputType.number,
-                                  onChanged: (value) {
-                                    lastscore = int.parse(value);
-                                  },
-                                ),
-                                actions: [
-                                  TextButton(
+                              _showScoreDialog(
+                                title: 'Edit Score',
+                                buttonLabel: 'Edit',
+                                initialValue: lastScore,
+                                onSave: (value) {
+                                  setState(() {
+                                    game.players[index].scores[indx - 1] =
+                                        value;
+                                  });
+                                  savePlayerScoreToSharedPreferences();
+                                },
+                              );
+                            },
+                          ),
+                          SlidableAction(
+                            icon: IconsaxBold.profile_remove,
+                            backgroundColor:
+                                const Color.fromARGB(255, 226, 48, 35),
+                            label: "Delete",
+                            borderRadius: BorderRadius.circular(14),
+                            onPressed: (context) {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return customalertdialog(
+                                    title: "Delete Player",
+                                    content:
+                                        "Are you sure you want to delete this player?",
                                     onPressed: () {
                                       setState(() {
-                                        game.players[index].scores[indx - 1] =
-                                            lastscore;
+                                        game.players.removeAt(index);
                                       });
                                       savePlayerScoreToSharedPreferences();
                                       Navigator.pop(context);
                                     },
-                                    child: Text('Edit'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                      ),
-                      SlidableAction(
-                        icon: IconsaxBold.profile_remove,
-                        backgroundColor: Color.fromARGB(255, 226, 48, 35),
-                        label: "Delete",
-                        onPressed: (context) {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return customalertdialog(
-                                title: "Delete Player",
-                                content:
-                                    "Are you sure you want to delete this player?",
-                                onPressed: () {
-                                  setState(() {
-                                    game.players.removeAt(index);
-                                  });
-                                  savePlayerScoreToSharedPreferences();
-                                  Navigator.pop(context);
+                                  );
                                 },
                               );
                             },
-                          );
-                        },
-                      ),
-                      SlidableAction(
-                        onPressed: (context) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CompetitiveChart(
-                                playerNames: game.players[index].playerName,
-                                playerScores: game.players[index].scores,
-                                totalScore: game.players[index].totalScore,
-                              ),
-                            ),
-                          );
-                        },
-                        icon: IconsaxBold.chart_square,
-                        label: "Chart",
-                        backgroundColor: Color.fromARGB(255, 78, 228, 155),
-                      )
-                    ],
-                  ),
-                  child: ListTile(
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          int newscore = 0;
-                          return AlertDialog(
-                            title: Text('New Score'),
-                            content: TextField(
-                              keyboardType: TextInputType.number,
-                              onChanged: (value) {
-                                newscore = int.parse(value);
-                              },
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  setState(() {
-                                    game.players[index].scores.add(newscore);
-                                  });
-                                  savePlayerScoreToSharedPreferences();
-                                  Navigator.pop(context);
-                                },
-                                child: Text('Edit'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    onLongPress: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          String playerName = game.players[index].playerName;
-                          return AlertDialog(
-                            title: Text('Edit Player'),
-                            content: TextField(
-                              onChanged: (value) {
-                                playerName = value;
-                              },
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  setState(() {
-                                    game.players[index].playerName = playerName;
-                                  });
-                                  savePlayerScoreToSharedPreferences();
-                                  Navigator.pop(context);
-                                },
-                                child: Text('Edit'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    leading: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      crossAxisAlignment: CrossAxisAlignment
-                          .start, // Align to the start (left side)
-                      children: [
-                        CircleAvatar(
-                          radius: 15,
-                          backgroundColor: getPlayerColor(index),
-                          child: Text(
-                            '${index + 1}',
-                            style: TextStyle(fontSize: 20),
                           ),
+                          SlidableAction(
+                            onPressed: (context) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CompetitiveChart(
+                                    playerNames:
+                                        game.players[index].playerName,
+                                    playerScores: game.players[index].scores,
+                                    totalScore:
+                                        game.players[index].totalScore,
+                                  ),
+                                ),
+                              );
+                            },
+                            icon: IconsaxBold.chart_square,
+                            label: "Chart",
+                            borderRadius: BorderRadius.circular(14),
+                            backgroundColor:
+                                const Color.fromARGB(255, 78, 228, 155),
+                          )
+                        ],
+                      ),
+                      child: GlassContainer(
+                        borderRadius: 16,
+                        padding: EdgeInsets.zero,
+                        tintColor: Colors.white.withOpacity(0.07),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 4),
+                          onTap: () {
+                            _showScoreDialog(
+                              title: 'New Score',
+                              buttonLabel: 'Add',
+                              onSave: (value) {
+                                setState(() {
+                                  game.players[index].scores.add(value);
+                                });
+                                savePlayerScoreToSharedPreferences();
+                              },
+                            );
+                          },
+                          onLongPress: () {
+                            _showPlayerNameDialog(
+                              title: 'Edit Player',
+                              buttonLabel: 'Save',
+                              initialValue: game.players[index].playerName,
+                              onSave: (value) {
+                                setState(() {
+                                  game.players[index].playerName = value;
+                                });
+                                savePlayerScoreToSharedPreferences();
+                              },
+                            );
+                          },
+                          leading: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CircleAvatar(
+                                radius: 15,
+                                backgroundColor: getPlayerColor(index),
+                                child: Text(
+                                  '${index + 1}',
+                                  style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              if (rankDifference != 0)
+                                Text(
+                                  '${rankDifference > 0 ? '↑' : '↓'}  ${rankDifference.abs()}',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: rankDifference > 0
+                                        ? Colors.greenAccent
+                                        : Colors.redAccent,
+                                  ),
+                                )
+                            ],
+                          ),
+                          title: Text(
+                            game.players[index].playerName,
+                            style: const TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text(
+                            'Score: ${game.players[index].totalScore}',
+                            style: const TextStyle(
+                                fontSize: 14, color: Colors.white70),
+                          ),
+                          trailing: index == 0
+                              ? Lottie.asset(
+                                  'images/crown.json',
+                                  height: 50,
+                                )
+                              : null,
                         ),
-                        if (rankDifference != 0)
-                          Text(
-                            '${rankDifference > 0 ? '↑' : '↓'}  ${rankDifference.abs()}',
-                            style: TextStyle(
-                                fontSize: 15,
-                                color: rankDifference > 0
-                                    ? Colors.green
-                                    : Colors.red),
-                          )
-                      ],
+                      ),
                     ),
-                    title: Text(
-                      game.players[index].playerName,
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    subtitle: Text(
-                      'Score: ${game.players[index].totalScore}',
-                      style: TextStyle(fontSize: 15),
-                    ),
-                    trailing: index == 0
-                        ? Lottie.asset(
-                            'images/crown.json',
-                            height: 50,
-                          )
-                        : null,
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) {
-              String New_PlayerName = '';
-              return AlertDialog(
-                title: Text('Add Player'),
-                content: TextField(
-                  keyboardType: TextInputType.name,
-                  onChanged: (value) {
-                    New_PlayerName = value;
-                  },
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      addPlayerToScoreboard(New_PlayerName);
-                      Navigator.pop(context);
-                    },
-                    child: Text('Add'),
-                  ),
-                ],
-              );
-            },
+          _showPlayerNameDialog(
+            title: 'Add Player',
+            buttonLabel: 'Add',
+            onSave: (name) => addPlayerToScoreboard(name),
           );
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -359,7 +419,6 @@ class _ScoreboardState extends State<Scoreboard> {
   Color getPlayerColor(int playerIndex) {
     if (playerscoreaddedornot(playerIndex)) {
       return Colors.red;
-      // Handle the flag or perform additional actions
     } else {
       return Colors.green;
     }
