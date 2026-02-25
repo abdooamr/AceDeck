@@ -45,7 +45,7 @@ class MainApp extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                  dialogTheme: DialogTheme(
+                  dialogTheme: DialogThemeData(
                     backgroundColor: const Color(0xFF1A1A2E),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
